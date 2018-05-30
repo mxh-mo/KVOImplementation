@@ -117,12 +117,12 @@ static void kvo_setter(id self, SEL _cmd, id newValue) {
     
     // 3) 遍历观测者数组
     NSMutableArray *observers = objc_getAssociatedObject(self, (__bridge const void *)(kMMKVOAssociatedObservers));
-    for (MMObserverInfoModel *each in observers) {
+    for (MMObserverInfoModel *model in observers) {
         // 4) 找到与observer和key对应的model
-        if ([each.key isEqualToString:getterName]) {
-            // 5) 调用其block, 传入(self, getterName, oldValue, newValue)
+        if ([model.key isEqualToString:getterName]) {
+            // 5) 调用其block, 传回(observer, getterName, oldValue, newValue)
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                each.block(self, getterName, oldValue, newValue);
+                model.block(observer.observer, getterName, oldValue, newValue);
             });
         }
     }
