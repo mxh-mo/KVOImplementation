@@ -17,21 +17,22 @@ typedef void(^MMObservingBlock)(id observer, NSString *observedKey, id oldValue,
 >>2> 获取当前类和类名<br>
 >>3> 创建子类 `"MMKVOClassPrefix_(className)"`, 实现`class`方法, 向`runtime`注册该类<br>
 
->>4> * 为子类实现`setter`方法 (动态绑定)<br>
+>>4> * 重写子类实现`setter`方法 (实现观察)<br>
 >>>1) 获取`oldValue`<br>
 >>>2) 调用父类的`setter`方法 对属性赋值<br>
 >>>3) 遍历观测者数组<br>
 >>>4) 找到与`observer`和`key`对应的`model`<br>
 >>>5) 调用其`block`, 传入`(self, getterName, oldValue, newValue)`<br>
 
->>5> 创建观察 `model`, 存入`observer key block`<br>
+>>5> * 创建观察 `model`, 存入`observer key block`<br>
 >>6> 获取`self`的关联属性`observers`数组, 并将新`model`加入<br>
 
 >6. 实现移除观察者方法:<br>
 >>1> 获取`self`的关联属性`observers`数组<br>
 >>2> 找到与`observer`和`key`对应的`model`, `remove`<br>
 
-添加观察者时 动态创建子类
+
+>>3> 创建子类 `"MMKVOClassPrefix_(className)"`, 实现`class`方法, 向`runtime`注册该类<br>
 ```Objective-C
 #pragma mark - 创建 "MMKVOClassPrefix_(className)" 子类
 - (Class)makeKvoClassWithOriginalClassName:(NSString *)originalClazzName {
@@ -62,6 +63,7 @@ static Class kvo_class(id self, SEL _cmd) {
     return class_getSuperclass(object_getClass(self));
 }
 ```
+>>5> * 创建观察 `model`, 存入`observer key block`<br>
 添加观察者时 为子类动态绑定观察者数组
 ```Objective-C
 // 5> 创建观察model, 存入observer key block
@@ -75,6 +77,7 @@ if (!observers) {
 }
 [observers addObject:info];
 ```
+>>4> * 重写子类实现`setter`方法 (实现观察)<br>
 子类重写'setter'方法, 从观察者数组中找到观察该属性观察者, 调用其观察block
 ```Objective-C
 #pragma mark - Overridden Methods
