@@ -2,6 +2,9 @@
 KVO的实现
 
  >1. 定义观察回调`block`(观察者, 观察键值, 旧值, 新值)<br>
+ ```Objective-C
+ typedef void(^MMObservingBlock)(id observer, NSString *observedKey, id oldValue, id newValue);
+ ```
  >2. 声明添加观察者方法(观察者, 观察键值, `block`)<br>
  >3. 声明删除观察者方法(观察者, 观察键值)<br>
  >4. 创建观察`model`: 观察者, 观察键值, `block`<br>
