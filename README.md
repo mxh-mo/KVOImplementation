@@ -25,7 +25,7 @@ typedef void(^MMObservingBlock)(id observer, NSString *observedKey, id oldValue,
 >>>5) 调用其`block`, 传入`(self, getterName, oldValue, newValue)`<br>
 
 >>5> * 创建观察 `model`, 存入`observer key block`<br>
->>6> 获取`self`的关联属性`observers`数组, 并将新`model`加入<br>
+>>6> * 获取`self`的关联属性`observers`数组, 并将新`model`加入<br>
 
 >6. 实现移除观察者方法:<br>
 >>1> 获取`self`的关联属性`observers`数组<br>
