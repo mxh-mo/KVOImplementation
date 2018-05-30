@@ -1,14 +1,14 @@
 # KVOImplementation
 KVO的实现
 
- 1. 定义观察回调`block`(观察者, 观察键值, 旧值, 新值)<br>
+ 1. 定义观察回调`block`(观察者, 观察键值, 旧值, 新值)
  2. 声明添加观察者方法(观察者, 观察键值, `block`)
  3. 声明删除观察者方法(观察者, 观察键值)
  4. 创建观察`model`: 观察者, 观察键值, `block`
  5. 实现添加观察者方法:
-    1> 获取系统自动生成的`setter`方法(没有则抛出异常)
-    2> 获取当前类和类名
-    3> 创建子类 `"MMKVOClassPrefix_(className)"`, 实现`class`方法, 向`runtime`注册该类
+    1> 获取系统自动生成的`setter`方法(没有则抛出异常)<br>
+    2> 获取当前类和类名<br>
+    3> 创建子类 `"MMKVOClassPrefix_(className)"`, 实现`class`方法, 向`runtime`注册该类<br>
     4> 为之类实现`setter`方法 (动态绑定)
          1) 获取`oldValue`
          2) 调用父类的`setter`方法 对属性赋值
