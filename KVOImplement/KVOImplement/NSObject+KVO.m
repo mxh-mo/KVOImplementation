@@ -54,7 +54,7 @@ NSString *const kMMKVOAssociatedObservers = @"MMKVOAssociatedObservers";
         clazz = [self makeKvoClassWithOriginalClassName:clazzName];
         object_setClass(self, clazz);   // 将self设置为 MMKVOClassPrefix_NSObject 类 !!!
     }
-    //4> 为之类实现setter方法 (动态绑定)
+    //4> 为子类实现setter方法 (动态绑定)
     if (![self hasSelector:setterSelector]) {
         const char *types = method_getTypeEncoding(setterMethod);
         class_addMethod(clazz, setterSelector, (IMP)kvo_setter, types);
@@ -104,7 +104,8 @@ static void kvo_setter(id self, SEL _cmd, id newValue) {
     }
     // 1) 获取oldValue
     id oldValue = [self valueForKey:getterName];
-    
+  
+    // 2) 调用父类的setter方法 对属性赋值
     struct objc_super superclazz = {
         .receiver = self,
         .super_class = class_getSuperclass(object_getClass(self))
@@ -115,24 +116,23 @@ static void kvo_setter(id self, SEL _cmd, id newValue) {
     void (*objc_msgSendSuperCasted)(void *, SEL, id) = (void *)objc_msgSendSuper;
     
     // call super's setter, which is original class's setter method
-    // 2) 调用父类的setter方法 对属性赋值
     objc_msgSendSuperCasted(&superclazz, _cmd, newValue);
     
     // look up observers and call the blocks
     // 3) 遍历观测者数组
     NSMutableArray *observers = objc_getAssociatedObject(self, (__bridge const void *)(kMMKVOAssociatedObservers));
-    for (MMObserverInfoModel *each in observers) {
+    for (MMObserverInfoModel *observer in observers) {
         // 4) 找到与observer和key对应的model
-        if ([each.key isEqualToString:getterName]) {
+        if ([observer.key isEqualToString:getterName]) {
             // 5) 调用其block, 传入(self, getterName, oldValue, newValue)
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                each.block(self, getterName, oldValue, newValue);
+                observer.block(observer.observer, getterName, oldValue, newValue);
             });
         }
     }
 }
 
-#pragma mark - 创建 "MMKVOClassPrefix_(className)" 类
+#pragma mark - 创建 "MMKVOClassPrefix_(className)" 子类
 - (Class)makeKvoClassWithOriginalClassName:(NSString *)originalClazzName {
     NSString *kvoClazzName = [kMMKVOClassPrefix stringByAppendingString:originalClazzName];
     Class clazz = NSClassFromString(kvoClazzName);
@@ -145,14 +145,14 @@ static void kvo_setter(id self, SEL _cmd, id newValue) {
     Class originalClazz = object_getClass(self);
     Class kvoClazz = objc_allocateClassPair(originalClazz, kvoClazzName.UTF8String, 0);
     
-    // grab class method's signature so we can borrow it
+    // 获取class方法
     Method clazzMethod = class_getInstanceMethod(originalClazz, @selector(class));
     const char *types = method_getTypeEncoding(clazzMethod);
     
     // 为新类添加class方法
     class_addMethod(kvoClazz, @selector(class), (IMP)kvo_class, types);
     
-    objc_registerClassPair(kvoClazz);   // 告诉runtime这个类的存在
+    objc_registerClassPair(kvoClazz);   // 向runtime注册个类
     
     return kvoClazz;
 }
