@@ -12,6 +12,26 @@ typedef void(^MMObservingBlock)(id observer, NSString *observedKey, id oldValue,
              withBlock:(MMObservingBlock)block;
 ```
 >3. 声明删除观察者方法(观察者, 观察键值)<br>
+>4. 创建观察model: 观察者, 观察键值, block<br>
+```Objective-C
+@interface MMObserverInfoModel : NSObject
+@property (nonatomic, weak) NSObject *observer;
+@property (nonatomic, copy) NSString *key;
+@property (nonatomic, copy) MMObservingBlock block;
+@end
+
+@implementation MMObserverInfoModel
+- (instancetype)initWithObserver:(NSObject *)observer Key:(NSString *)key block:(MMObservingBlock)block {
+    self = [super init];
+    if (self) {
+        _observer = observer;
+        _key = key;
+        _block = block;
+    }
+    return self;
+}
+@end
+```
 >5. 实现添加观察者方法:<br>
 >>1> 获取系统自动生成的`setter`方法(没有则抛出异常)<br>
 >>2> 获取当前类和类名<br>
