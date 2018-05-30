@@ -16,7 +16,7 @@ typedef void(^MMObservingBlock)(id observer, NSString *observedKey, id oldValue,
 >>1> 获取系统自动生成的`setter`方法(没有则抛出异常)<br>
 >>2> 获取当前类和类名<br>
 >>3> 创建子类 `"MMKVOClassPrefix_(className)"`, 实现`class`方法, 向`runtime`注册该类<br>
->>4> 为之类实现`setter`方法 (动态绑定)<br>
+>>4> * 为之类实现`setter`方法 (动态绑定)<br>
 >>>1) 获取`oldValue`<br>
 >>>2) 调用父类的`setter`方法 对属性赋值<br>
 >>>3) 遍历观测者数组<br>
