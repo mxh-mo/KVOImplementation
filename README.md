@@ -89,7 +89,6 @@ static Class kvo_class(id self, SEL _cmd) {
 // 5> 创建观察model, 存入observer key block
 MMObserverInfoModel *info = [[MMObserverInfoModel alloc] initWithObserver:observer Key:key block:block];
 // 6> 获取self的关联属性observers数组, 并将新model加入
-
 NSMutableArray *observers = objc_getAssociatedObject(self, (__bridge const void *)(kMMKVOAssociatedObservers));
 if (!observers) {
     observers = [NSMutableArray array];
