@@ -107,14 +107,12 @@ static void kvo_setter(id self, SEL _cmd, id newValue) {
     // 1) 获取oldValue
     id oldValue = [self valueForKey:getterName];
     
+    // 2) 调用父类的setter方法 对属性赋值
     struct objc_super superclazz = {
         .receiver = self,
         .super_class = class_getSuperclass(object_getClass(self))
     };
-    
-    void (*objc_msgSendSuperCasted)(void *, SEL, id) = (void *)objc_msgSendSuper;
-    
-    // 2) 调用父类的setter方法 对属性赋值
+    void (*objc_msgSendSuperCasted)(void *, SEL, id) = (void *)objc_msgSendSuper;    
     objc_msgSendSuperCasted(&superclazz, _cmd, newValue);
     
     // 3) 遍历观测者数组
